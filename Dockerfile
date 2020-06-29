@@ -2,7 +2,7 @@
 FROM python:3-slim AS builder
 
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends build-essential gcc
+RUN apt-get install -y --no-install-recommends build-essential gcc libffi-dev
 
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"

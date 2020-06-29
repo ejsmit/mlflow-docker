@@ -18,7 +18,7 @@ jobs:
           MLFLOW_VERSION=`awk -F= '/ARG MLFLOW_VERSION/{print $2}' Dockerfile`
           echo ::set-output name=version::${MLFLOW_VERSION}
           echo ::set-output name=docker_image::ejsmit/mlflow
-          echo ::set-output name=docker_push::false
+          echo ::set-output name=docker_push::true
           echo ::set-output name=docker_username::ejsmit
       - name: Set up Docker Buildx
         uses: crazy-max/ghaction-docker-buildx@v1.4.0
@@ -33,7 +33,7 @@ jobs:
       - name: Run Buildx
         run: |
           docker buildx build \
-            --platform linux/amd64,linux/arm/v7,linux/arm64 \
+            --platform linux/amd64,linux/arm/v7 \
             --tag "${{ steps.prepare.outputs.docker_image }}:latest" \
             --tag "${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}" \
             --output "type=image,push=${{ steps.prepare.outputs.docker_push }}" .
