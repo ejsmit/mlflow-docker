@@ -21,6 +21,6 @@ The following can also be used when using S3 artifact storage.
 * **MLFLOW_S3_ENDPOINT_URL**: Useful if using minio instead of amazon s3.  Point mlflow to the minio 
   instance. Not set by default.
 
-Starts up a `mlflow server` on port 5000.
+Starts up a `mlflow server` on http port 5000.
 
 
