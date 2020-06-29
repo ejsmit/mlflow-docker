@@ -1,0 +1,42 @@
+name: build-docker
+
+on: push
+
+
+
+jobs:
+
+  buildx:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare
+        id: prepare
+        run: |
+          MLFLOW_VERSION=`awk -F= '/ARG MLFLOW_VERSION/{print $2}' Dockerfile`
+          echo ::set-output name=version::${MLFLOW_VERSION}
+          echo ::set-output name=docker_image::ejsmit/mlflow
+          echo ::set-output name=docker_push::false
+          echo ::set-output name=docker_username::ejsmit
+      - name: Set up Docker Buildx
+        uses: crazy-max/ghaction-docker-buildx@v1.4.0
+        id: buildx
+        with:
+          version: latest
+      - name: Docker Login
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "${DOCKER_PASSWORD}" | docker login --username "${{ steps.prepare.outputs.docker_username }}" --password-stdin
+      - name: Run Buildx
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm/v7,linux/arm64 \
+            --tag "${{ steps.prepare.outputs.docker_image }}:latest" \
+            --tag "${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}" \
+            --output "type=image,push=${{ steps.prepare.outputs.docker_push }}" .
+      - name: Docker Check Manifest
+        run: |
+          docker run --rm mplatform/mquery ${{ steps.prepare.outputs.docker_image }}:latest
